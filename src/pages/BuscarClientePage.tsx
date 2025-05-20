@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import ClienteNoEncontrado from '../components/ClienteNoEncontrado';
+import logo from '../assets/images/logo-club-nx.png';
 
 export default function BuscarClientePage() {
   const [rut, setRut] = useState('');
@@ -7,12 +7,11 @@ export default function BuscarClientePage() {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Simulación de búsqueda
+    // Lógica simulada
     if (rut === '12345678-9') {
-      setClienteEncontrado(true); // Simula cliente encontrado (futuro caso de éxito)
+      setClienteEncontrado(true); // cliente encontrado
     } else {
-      setClienteEncontrado(false); // Cliente no encontrado
+      setClienteEncontrado(false); // no encontrado
     }
   };
 
@@ -22,31 +21,43 @@ export default function BuscarClientePage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      {clienteEncontrado === false ? (
-        <ClienteNoEncontrado onTryAgain={resetSearch} />
-      ) : (
-        <form 
-          onSubmit={handleSearch} 
-          className="bg-white p-8 rounded-xl shadow-lg w-96 text-center"
-        >
-          <h1 className="text-2xl font-bold text-blue-600 mb-6">Buscar Cliente</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#dbeafe] via-white to-[#dcfce7]">
+      <div className="bg-white/80 backdrop-blur-md p-10 rounded-[2rem] shadow-2xl w-full max-w-md text-center border border-white/40">
+        <img src={logo} alt="Club NX" className="w-32 mx-auto mb-6" />
+        <h2 className="text-2xl font-bold text-purple-700 mb-4">Buscar Cliente</h2>
+
+        <form onSubmit={handleSearch}>
           <input
             type="text"
             value={rut}
             onChange={(e) => setRut(e.target.value)}
-            placeholder="Ingrese RUT"
-            className="w-full p-3 mb-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Ingrese RUT (ej: 12345678-9)"
             required
+            className="w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
+
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition-colors"
+            className="w-full p-3 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 via-blue-500 to-lime-500 hover:opacity-90 transition"
           >
             Buscar
           </button>
         </form>
-      )}
+
+        {clienteEncontrado === false && (
+          <div className="mt-6 text-red-600 font-medium">
+            Cliente no encontrado
+            <div>
+              <button
+                onClick={resetSearch}
+                className="mt-3 text-blue-600 underline hover:text-blue-800"
+              >
+                Intentar de nuevo
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
