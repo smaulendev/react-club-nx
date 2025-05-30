@@ -3,21 +3,44 @@ import logo from '../assets/images/logo-club-nx.png';
 
 export default function BuscarClientePage() {
   const [rut, setRut] = useState('');
-  const [clienteEncontrado, setClienteEncontrado] = useState<boolean | null>(null);
+  const [cliente, setCliente] = useState<any | null>(null);
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Lógica simulada
-    if (rut === '12345678-9') {
-      setClienteEncontrado(true); // cliente encontrado
+const handleSearch = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setCliente(null);
+  setError('');
+
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await fetch(`http://localhost:3001/clientes/buscar?rut=${rut}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data && !data.message) {
+      setCliente(data);
     } else {
-      setClienteEncontrado(false); // no encontrado
+      setError(data.message || 'Cliente no encontrado');
     }
-  };
+  } catch (err) {
+    setError('Error al conectar con el servidor');
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const resetSearch = () => {
-    setClienteEncontrado(null);
     setRut('');
+    setCliente(null);
+    setError('');
   };
 
   return (
@@ -35,26 +58,45 @@ export default function BuscarClientePage() {
             required
             className="w-full p-3 mb-4 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
-
           <button
             type="submit"
             className="w-full p-3 rounded-xl font-semibold text-white bg-gradient-to-r from-purple-600 via-blue-500 to-lime-500 hover:opacity-90 transition"
+            disabled={loading}
           >
-            Buscar
+            {loading ? 'Buscando...' : 'Buscar'}
           </button>
         </form>
 
-        {clienteEncontrado === false && (
-          <div className="mt-6 text-red-600 font-medium">
-            Cliente no encontrado
-            <div>
-              <button
-                onClick={resetSearch}
-                className="mt-3 text-blue-600 underline hover:text-blue-800"
-              >
-                Intentar de nuevo
-              </button>
-            </div>
+        {loading && (
+          <div className="mt-4 flex justify-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-t-4 border-b-4 border-purple-600"></div>
+          </div>
+        )}
+
+        {error && (
+          <div className="mt-6 bg-red-100 text-red-800 p-4 rounded-xl">
+            <p className="font-semibold">{error}</p>
+            <button
+              onClick={resetSearch}
+              className="mt-3 text-sm text-blue-600 underline hover:text-blue-800"
+            >
+              Intentar de nuevo
+            </button>
+          </div>
+        )}
+
+        {cliente && (
+          <div className="mt-6 bg-green-100 p-4 rounded-xl text-left text-sm">
+            <p><strong>ID:</strong> {cliente.id}</p>
+            <p><strong>Nombre:</strong> {cliente.nombre}</p>
+            <p><strong>RUT:</strong> {cliente.rut}</p>
+            <p><strong>Estado:</strong> {cliente.estado}</p>
+            <button
+              onClick={resetSearch}
+              className="mt-4 text-blue-600 underline hover:text-blue-800"
+            >
+              Buscar otro cliente
+            </button>
           </div>
         )}
       </div>

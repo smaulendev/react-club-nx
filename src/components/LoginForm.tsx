@@ -1,16 +1,34 @@
 import { useState } from 'react';
 
-interface LoginFormProps {
-  onSubmit: (email: string, password: string) => void;
-}
-
-export default function LoginForm({ onSubmit }: LoginFormProps) {
+export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(email, password);
+    console.log(email, password); // confirmar
+
+    try {
+      const response = await fetch('http://localhost:3001/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+      console.log('Respuesta:', data); // depuración
+
+      if (response.ok && data.access_token) {
+        localStorage.setItem('token', data.access_token);
+        alert('Login exitoso');
+        window.location.href = '/buscar-cliente';
+      } else {
+        alert('Credenciales inválidas');
+      }
+    } catch (err) {
+      console.error('Error al conectarse al servidor:', err);
+      alert('Error al conectar con el servidor');
+    }
   };
 
   return (
